@@ -10,6 +10,12 @@ int main()
 {
 	int numContainers;
 	string input;
+	int option;
+
+	cout << "Select an option: " << endl;
+	cout << "1. Hash table with collisions" << endl;
+	cout << "2. Hash table without collisions" << endl;
+	cin >> option;
 
 	ifstream inputFile("input.txt");
 
@@ -21,7 +27,6 @@ int main()
 
 	inputFile >> numContainers;
 	inputFile.ignore();
-
 
 	getline(inputFile, input);
 
@@ -36,32 +41,77 @@ int main()
 		words.push_back(word);
 	}
 
-	unordered_map<int, vector < string>> containers;
 
-	for (string word : words)
+	if (option == 1) // Hash table with collisions
 	{
-		int sum = 0;
-		for (char c : word)
+		unordered_map<int, vector < string>> containers;
+
+		for (string word : words)
 		{
-			sum += int(c);
+			int sum = 0;
+			for (char c : word)
+			{
+				sum += int(c);
+			}
+
+			int containerNum = sum % numContainers;
+
+			containers[containerNum].push_back(word);
 		}
 
-		int containerNum = sum % numContainers;
-
-		containers[containerNum].push_back(word);
+		for (int i = 0; i < numContainers; i++)
+		{
+			cout << "Container " << i << ": ";
+			if (containers[i].empty())
+				cout << "null";
+			else
+			{
+				for (string word : containers[i])
+					cout << word << " ";
+			}
+			cout << endl;
+		}
 	}
-
-	for (int i = 0; i < numContainers; i++)
+	else if (option == 2) // Hash table without collisions using linear probing
 	{
-		cout << "Container " << i << ": ";
-		if (containers[i].empty())
-			cout << "null";
-		else
+		unordered_map<int, string> containers;
+
+		for (string word : words)
 		{
-			for (string word : containers[i])
-				cout << word << " ";
+			int sum = 0;
+			for (char c : word)
+			{
+				sum += int(c);
+			}
+
+			int containerNum = sum % numContainers;
+			int originalContainerNum = containerNum;
+
+			while (containers.find(containerNum) != containers.end())
+			{
+				containerNum = (containerNum + 1) % numContainers;
+				if (containerNum == originalContainerNum)
+				{
+					numContainers++;
+				}
+			}
+
+			containers[containerNum] = word;
 		}
-		cout << endl;
+
+		for (int i = 0; i < numContainers; i++)
+		{
+			cout << "Container " << i << ": ";
+			if (containers.find(i) == containers.end())
+				cout << "null";
+			else
+				cout << containers[i];
+			cout << endl;
+		}
+	}
+	else
+	{
+		cout << "Invalid option selected." << endl;
 	}
 
 	return 0;
